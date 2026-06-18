@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ===== META TAGS ===== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Route Ledger Pro</title>
+
+  <!-- ===== EXTERNAL RESOURCES ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Chart.js for beautiful charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- For PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- ===== STYLESHEETS ===== -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- PWA Meta Tags -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Route Ledger">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#10b981">
+
+<!-- PWA Icons (for older browsers) -->
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+<link rel="shortcut icon" href="icons/icon-96.png">
+
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(function(registration) {
+            console.log('✅ Service Worker registered successfully!');
+          })
+          .catch(function(error) {
+            console.log('❌ Service Worker registration failed:', error);
+          });
+      }
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR NAVIGATION                                            -->
+    <!-- ============================================================ -->
+    <nav class="sidebar">
+
+      <!-- Brand / Logo -->
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fas fa-route"></i>
+        </div>
+        <div>
+          <h1>Route Ledger</h1>
+          <span class="brand-sub">Business Finance</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <div class="nav-menu">
+        <button class="nav-item active" data-tab="dashboard" onclick="showTab('dashboard')">
+          <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-tab="money" onclick="showTab('money')">
+          <i class="fas fa-wallet"></i> <span>Money</span>
+        </button>
+        <button class="nav-item" data-tab="history" onclick="showTab('history')">
+          <i class="fas fa-clock-rotate-left"></i> <span>History</span>
+        </button>
+        <button class="nav-item" data-tab="passengers" onclick="showTab('passengers')">
+          <i class="fas fa-users"></i> <span>Passengers</span>
+        </button>
+        <button class="nav-item" data-tab="reports" onclick="showTab('reports')">
+          <i class="fas fa-file-invoice"></i> <span>Reports</span>
+        </button>
+        <button class="nav-item" data-tab="settings" onclick="showTab('settings')">
+          <i class="fas fa-gear"></i> <span>Settings</span>
+        </button>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="version">v2.0</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="toggleTheme()" class="btn-ghost" id="themeToggle" title="Toggle Theme">
+            <i class="fas fa-moon"></i>
+          </button>
+          <button onclick="exportBackup()" class="btn-ghost">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+</div>
+
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT AREA                                            -->
+    <!-- ============================================================ -->
+    <main class="main-content">
+
+      <!-- ========================================================== -->
+      <!-- TAB 1: DASHBOARD                                           -->
+      <!-- ========================================================== -->
+      <section id="dashboard" class="tab active-tab">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h2>Dashboard</h2>
+            <p class="text-muted">Your financial overview</p>
+          </div>
+          <div class="header-actions">
+            <span class="badge">
+              <i class="fas fa-calendar"></i>
+              <span id="currentMonthDisplay">This Month</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Primary Stats -->
+        <div class="stats-grid">
+          <div class="stat-card stat-income" onclick="goToHistory('income')" style="cursor:pointer;">
+           <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+           <div class="stat-info">
+             <span class="stat-label">Income <i class="fas fa-arrow-right" style="font-size:10px;color:var(--text-muted);"></i></span>
+             <span class="stat-value" id="income">R0</span>
+           </div>
+           <div class="stat-change" id="incomeChangePercent">
+             <i class="fas fa-trend-up"></i> <span id="incomePercentText">0%</span>
+           </div>
+         </div>
+
+          <div class="stat-card stat-expense" onclick="goToHistory('expense')" style="cursor:pointer;">
+            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Expenses <i class="fas fa-arrow-right" style="font-size:10px;color:var(--text-muted);"></i></span>
+              <span class="stat-value" id="expenses">R0</span>
+            </div>
+            <div class="stat-change" id="expenseChangePercent">
+              <i class="fas fa-trend-down"></i> <span id="expensePercentText">0%</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-balance">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Balance</span>
+              <span class="stat-value" id="balance">R0</span>
+            </div>
+            <div class="stat-change neutral"><i class="fas fa-minus"></i> Stable</div>
+          </div>
+        </div>
+
+        <!-- Secondary Stats -->
+        <div class="stats-grid-secondary">
+          <div class="stat-card stat-expected">
+            <div class="stat-icon small"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Expected</span>
+              <span class="stat-value" id="expectedAmount">R0</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-collected">
+            <div class="stat-icon small"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Collected</span>
+              <span class="stat-value" id="collectedAmount">R0</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-outstanding">
+            <div class="stat-icon small"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Outstanding</span>
+              <span class="stat-value" id="outstandingAmount">R0</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-passengers">
+            <div class="stat-icon small"><i class="fas fa-user-check"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Passengers Paid</span>
+              <span class="stat-value" id="paidPassengers">0 / 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-line" style="color: var(--color-green);"></i> Income vs Expenses</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="incomeExpenseChart" height="200"></canvas>
+            </div>
+          </div>
+          
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-pie" style="color: var(--color-purple);"></i> Income Breakdown</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="incomeBreakdownChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart Finance Section -->
+        <div class="smart-finance-grid">
+          
+          <!-- Monthly Target Card -->
+          <div class="card finance-card">
+            <div class="card-header">
+              <h3><i class="fas fa-bullseye" style="color: var(--color-purple);"></i> Monthly Target</h3>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span class="finance-label">Progress</span>
+                <span class="finance-value" id="targetProgress">0%</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="targetProgressBar" style="width:0%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-secondary);">
+                <span>R<span id="targetCollected">0</span></span>
+                <span>Target: R<span id="monthlyTarget">0</span></span>
+              </div>
+              <div class="form-group" style="margin-top:12px;">
+                <label style="font-size:12px;">Set Monthly Target (R)</label>
+                <div class="input-group">
+                  <span class="input-prefix">R</span>
+                  <input id="monthlyTargetInput" type="number" placeholder="e.g. 15000" class="form-control" />
+                </div>
+                <button onclick="saveMonthlyTarget()" class="btn btn-primary" style="margin-top:8px;padding:8px;">
+                  <i class="fas fa-save"></i> Save Target
+                </button>
+              </div>
+            </div>
+          </div>
+        
+          <!-- Budget Card -->
+          <div class="card finance-card">
+            <div class="card-header">
+              <h3><i class="fas fa-wallet" style="color: var(--color-cyan);"></i> Budget Tracker</h3>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span class="finance-label">Budget Used</span>
+                <span class="finance-value" id="budgetUsed">0%</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" id="budgetProgressBar" style="width:0%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-secondary);">
+                <span>R<span id="budgetSpent">0</span></span>
+                <span>Budget: R<span id="budgetLimit">0</span></span>
+              </div>
+              <div style="margin-top:12px;display:flex;gap:8px;">
+                <div class="form-group" style="flex:1;margin-bottom:0;">
+                  <label style="font-size:12px;">Monthly Budget (R)</label>
+                  <div class="input-group">
+                    <span class="input-prefix">R</span>
+                    <input id="budgetInput" type="number" placeholder="e.g. 8000" class="form-control" />
+                  </div>
+                </div>
+                <button onclick="saveBudget()" class="btn btn-success" style="margin-top:22px;padding:8px 16px;width:auto;">
+                  <i class="fas fa-save"></i>
+                </button>
+              </div>
+              <div id="budgetAlert" style="margin-top:8px;padding:8px;border-radius:6px;display:none;font-size:13px;font-weight:500;"></div>
+            </div>
+          </div>
+        
+          <!-- Profit & Break-Even Card -->
+          <div class="card finance-card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-line" style="color: var(--color-green);"></i> Profit & Break-Even</h3>
+            </div>
+            <div class="card-body">
+              <div class="finance-stats">
+                <div class="finance-stat-item">
+                  <span class="finance-stat-label">Net Profit</span>
+                  <span class="finance-stat-value" id="netProfit" style="color:var(--color-green);">R0</span>
+                </div>
+                <div class="finance-stat-item">
+                  <span class="finance-stat-label">Profit Margin</span>
+                  <span class="finance-stat-value" id="profitMargin">0%</span>
+                </div>
+                <div class="finance-stat-item">
+                  <span class="finance-stat-label">Break-Even Point</span>
+                  <span class="finance-stat-value" id="breakEven">R0</span>
+                </div>
+                <div class="finance-stat-item">
+                  <span class="finance-stat-label">Daily Average</span>
+                  <span class="finance-stat-value" id="dailyAverage">R0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ADVANCED ANALYTICS                                            -->
+        <!-- ============================================================ -->
+        <div class="analytics-section">
+        
+          <!-- Comparison Cards -->
+          <div class="comparison-grid">
+            <div class="card comparison-card">
+              <div class="card-header">
+                <h3><i class="fas fa-arrows-left-right" style="color: var(--color-cyan);"></i> Month vs Last Month</h3>
+              </div>
+              <div class="card-body">
+                <div class="comparison-stats">
+                  <div class="comparison-item">
+                    <span class="comparison-label">This Month</span>
+                    <span class="comparison-value" id="thisMonthIncome">R0</span>
+                    <span class="comparison-sub">Income</span>
+                  </div>
+                  <div class="comparison-item">
+                    <span class="comparison-label">Last Month</span>
+                    <span class="comparison-value" id="lastMonthIncome">R0</span>
+                    <span class="comparison-sub">Income</span>
+                  </div>
+                  <div class="comparison-item comparison-diff">
+                    <span class="comparison-label">Change</span>
+                    <span class="comparison-value" id="incomeChange">0%</span>
+                    <span class="comparison-sub" id="incomeChangeLabel">vs last month</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+            <div class="card comparison-card">
+              <div class="card-header">
+                <h3><i class="fas fa-calendar-check" style="color: var(--color-purple);"></i> Year-to-Date</h3>
+              </div>
+              <div class="card-body">
+                <div class="ytd-stats">
+                  <div class="ytd-item">
+                    <span class="ytd-label">Total Income</span>
+                    <span class="ytd-value" id="ytdIncome">R0</span>
+                  </div>
+                  <div class="ytd-item">
+                    <span class="ytd-label">Total Expenses</span>
+                    <span class="ytd-value" id="ytdExpenses">R0</span>
+                  </div>
+                  <div class="ytd-item">
+                    <span class="ytd-label">Net Profit</span>
+                    <span class="ytd-value" id="ytdProfit">R0</span>
+                  </div>
+                  <div class="ytd-item">
+                    <span class="ytd-label">Avg Monthly</span>
+                    <span class="ytd-value" id="ytdAverage">R0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+          <!-- Expense Breakdown & Best/Worst Months -->
+          <div class="analytics-grid">
+            
+            <!-- Expense Breakdown Chart -->
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fas fa-chart-pie" style="color: var(--color-red);"></i> Expense Breakdown</h3>
+              </div>
+              <div class="card-body">
+                <canvas id="expenseBreakdownChart" height="200"></canvas>
+                <ul class="expense-legend" id="expenseLegend"></ul>
+              </div>
+            </div>
+        
+            <!-- Best & Worst Months -->
+            <div class="card">
+              <div class="card-header">
+                <h3><i class="fas fa-trophy" style="color: var(--color-yellow);"></i> Best & Worst Months</h3>
+              </div>
+              <div class="card-body">
+                <div class="best-worst-grid">
+                  <div>
+                    <h4 style="color:var(--color-green);font-size:14px;margin-bottom:8px;">
+                      <i class="fas fa-arrow-up"></i> Best Month
+                    </h4>
+                    <div id="bestMonth">
+                      <span style="color:var(--text-muted);font-size:13px;">No data yet</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 style="color:var(--color-red);font-size:14px;margin-bottom:8px;">
+                      <i class="fas fa-arrow-down"></i> Worst Month
+                    </h4>
+                    <div id="worstMonth">
+                      <span style="color:var(--text-muted);font-size:13px;">No data yet</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-sm);">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;">
+                    <span style="color:var(--text-secondary);">Growth Rate</span>
+                    <span id="growthRate" style="font-weight:600;color:var(--color-green);">0%</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;">
+                    <span style="color:var(--text-secondary);">Average Monthly Income</span>
+                    <span id="avgMonthlyIncome" style="font-weight:600;">R0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+          </div>
+        
+          <!-- Monthly Trends Table -->
+          <div class="card" style="margin-top:20px; margin-bottom:24px;">
+            <div class="card-header">
+              <h3><i class="fas fa-table" style="color: var(--color-blue);"></i> Monthly Trends</h3>
+              <span class="badge">Last 6 Months</span>
+            </div>
+            <div class="card-body" style="padding:0;overflow-x:auto;">
+              <table class="trends-table" id="trendsTable">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
+                    <th>Profit</th>
+                    <th>Margin</th>
+                  </tr>
+                </thead>
+                <tbody id="trendsBody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">No data available</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button onclick="showTab('money')" class="quick-btn">
+            <i class="fas fa-plus-circle"></i> Add Income
+          </button>
+          <button onclick="showTab('money')" class="quick-btn">
+            <i class="fas fa-minus-circle"></i> Add Expense
+          </button>
+          <button onclick="showTab('passengers')" class="quick-btn">
+            <i class="fas fa-user-plus"></i> Manage Passengers
+          </button>
+        </div>
+
+        <!-- Passenger Ranking -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card-header">
+            <h3><i class="fas fa-trophy" style="color: var(--color-yellow);"></i> Passenger Ranking</h3>
+            <span class="badge">Top Payers</span>
+          </div>
+          <div class="card-body">
+            <ul class="ranking-list" id="passengerRanking">
+              <li style="color:var(--text-muted);text-align:center;padding:20px;">Add passengers to see ranking</li>
+            </ul>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================== -->
+      <!-- TAB 2: MONEY MANAGEMENT                                    -->
+      <!-- ========================================================== -->
+      <section id="money" class="tab">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2><i class="fas fa-wallet"></i> Money Management</h2>
+        </div>
+
+        <!-- Money Grid -->
+        <div class="money-grid">
+
+          <!-- Add Income Card -->
+          <div class="card card-income">
+            <div class="card-header">
+              <h3><i class="fas fa-plus-circle" style="color: #10b981;"></i> Add Income</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Source</label>
+                <select id="incomeSource" onchange="toggleIncomeFields()" class="form-control">
+                  <option value="Passenger">Passenger</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="passengerGroup">
+                <label>Passenger</label>
+                <select id="passengerName" class="form-control"></select>
+              </div>
+
+              <div class="form-group" id="descriptionGroup" style="display:none;">
+                <label>Description</label>
+                <input id="incomeDescription" type="text" placeholder="Enter description..." class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Amount (R)</label>
+                <input id="incomeInput" type="number" placeholder="0.00" class="form-control" />
+              </div>
+
+              <button onclick="addIncome()" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Income
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Expense Card -->
+          <div class="card card-expense">
+            <div class="card-header">
+              <h3><i class="fas fa-minus-circle" style="color: #ef4444;"></i> Add Expense</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Category</label>
+                <select id="expenseCategory" onchange="toggleExpenseField()" class="form-control">
+                  <option value="Fuel">Fuel</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Tyres">Tyres</option>
+                  <option value="Insurance">Insurance</option>
+                  <option value="Airtime">Airtime</option>
+                  <option value="Groceries">Groceries</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="expenseDescriptionGroup" style="display:none;">
+                <label>Description</label>
+                <input id="expenseDescription" type="text" placeholder="Enter description..." class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Amount (R)</label>
+                <input id="expenseInput" type="number" placeholder="0.00" class="form-control" />
+              </div>
+
+              <button onclick="addExpense()" class="btn btn-danger">
+                <i class="fas fa-minus"></i> Add Expense
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================================== -->
+      <!-- TAB 3: HISTORY                                             -->
+      <!-- ========================================================== -->
+      <section id="history" class="tab">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2><i class="fas fa-clock-rotate-left"></i> Transaction History</h2>
+        </div>
+
+        <!-- History Grid -->
+        <div class="history-grid">
+
+          <!-- Income History -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-arrow-up" style="color: #10b981;"></i> Income History</h3>
+              <span class="badge" id="incomeCount">0 entries</span>
+            </div>
+            <div class="card-body">
+              <ul class="history-list" id="incomeHistory"></ul>
+            </div>
+          </div>
+
+          <!-- Expense History -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-arrow-down" style="color: #ef4444;"></i> Expense History</h3>
+              <span class="badge" id="expenseCount">0 entries</span>
+            </div>
+            <div class="card-body">
+              <ul class="history-list" id="expenseHistory"></ul>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================================== -->
+      <!-- TAB 4: PASSENGERS                                          -->
+      <!-- ========================================================== -->
+      <section id="passengers" class="tab">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2><i class="fas fa-users"></i> Passenger Management</h2>
+        </div>
+
+        <!-- Passenger Card -->
+        <div class="card">
+          <div class="card-body">
+
+            <!-- Passenger Actions -->
+            <div class="passenger-actions">
+              <div class="form-group" style="flex:1;">
+                <input id="newPassenger" type="text" placeholder="Enter passenger name..." class="form-control" />
+              </div>
+              <button onclick="addPassenger()" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Add
+              </button>
+              <button onclick="resetPassengerStatuses()" class="btn btn-warning">
+                <i class="fas fa-rotate"></i> New Month
+              </button>
+              <button onclick="forceNewMonth()" class="btn btn-info">
+                <i class="fas fa-calendar-plus"></i> Force Reset
+              </button>
+            </div>
+
+            <!-- Batch Actions -->
+            <div style="margin-bottom:20px;padding:16px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border-color);">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">
+                  <i class="fas fa-check-double"></i> Batch Actions:
+                </span>
+                <button onclick="selectAllPassengers()" class="btn" style="width:auto;padding:6px 16px;background:var(--bg-card);color:var(--text-secondary);border:1px solid var(--border-color);">
+                  Select All
+                </button>
+                <button onclick="deselectAllPassengers()" class="btn" style="width:auto;padding:6px 16px;background:var(--bg-card);color:var(--text-secondary);border:1px solid var(--border-color);">
+                  Deselect All
+                </button>
+                <button onclick="markSelectedPaid()" class="btn btn-success" style="width:auto;padding:6px 16px;">
+                  <i class="fas fa-check"></i> Mark Selected Paid
+                </button>
+                <button onclick="exportPassengerData()" class="btn btn-info" style="width:auto;padding:6px 16px;">
+                  <i class="fas fa-download"></i> Export Data
+                </button>
+                <span style="font-size:12px;color:var(--text-muted);" id="selectedCount">0 selected</span>
+              </div>
+            </div>
+
+            <!-- Passenger Statistics -->
+            <div class="passenger-stats">
+              <div class="mini-stat">
+                <span class="mini-label">Total</span>
+                <span class="mini-value" id="totalPassengers">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Paid</span>
+                <span class="mini-value" id="paidCount">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Partial</span>
+                <span class="mini-value" id="partialCount">0</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Waiting</span>
+                <span class="mini-value" id="waitingCount">0</span>
+              </div>
+            </div>
+
+            <!-- Due Date & Reminder Settings -->
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-header">
+                <h3><i class="fas fa-bell" style="color: var(--color-yellow);"></i> Payment Reminders</h3>
+                <span class="badge" id="reminderBadge">0 overdue</span>
+              </div>
+              <div class="card-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label style="font-size:12px;">Default Due Day of Month</label>
+                    <select id="defaultDueDay" class="form-control" onchange="saveDefaultDueDay()">
+                      <option value="1">1st</option>
+                      <option value="5">5th</option>
+                      <option value="10">10th</option>
+                      <option value="15">15th</option>
+                      <option value="20">20th</option>
+                      <option value="25">25th</option>
+                      <option value="28">28th</option>
+                      <option value="last">Last Day</option>
+                    </select>
+                  </div>
+                  <div style="display:flex;align-items:flex-end;gap:8px;">
+                    <button onclick="checkOverduePassengers()" class="btn btn-warning" style="width:auto;padding:8px 16px;">
+                      <i class="fas fa-search"></i> Check Overdue
+                    </button>
+                    <button onclick="sendReminders()" class="btn btn-info" style="width:auto;padding:8px 16px;">
+                      <i class="fas fa-bell"></i> Send Reminders
+                    </button>
+                  </div>
+                </div>
+                <div id="overdueList" style="margin-top:8px;max-height:150px;overflow-y:auto;"></div>
+              </div>
+            </div>
+
+            <!-- Passenger List -->
+           <ul class="passenger-grid" id="passengerList"></ul>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================== -->
+      <!-- TAB 5: REPORTS                                             -->
+      <!-- ========================================================== -->
+      <section id="reports" class="tab">
+      
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2><i class="fas fa-file-invoice"></i> Reports & Export</h2>
+          <div class="header-actions">
+            <span class="badge"><i class="fas fa-calendar"></i> <span id="reportMonthDisplay">This Month</span></span>
+          </div>
+        </div>
+      
+        <!-- Report Options Grid -->
+        <div class="report-options-grid">
+          
+          <!-- PDF Report Card -->
+          <div class="card report-option-card">
+            <div class="card-header">
+              <h3><i class="fas fa-file-pdf" style="color: #ef4444;"></i> PDF Report</h3>
+            </div>
+            <div class="card-body">
+              <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">
+                Generate a professional PDF report with all your financial data, charts, and passenger information.
+              </p>
+              <div class="form-group">
+                <label>Select Month</label>
+                <input type="month" id="pdfReportMonth" class="form-control" />
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="generatePDF()" class="btn btn-danger" style="width:auto;padding:10px 24px;">
+                  <i class="fas fa-file-pdf"></i> Generate PDF
+                </button>
+                <button onclick="printReport()" class="btn btn-info" style="width:auto;padding:10px 24px;">
+                  <i class="fas fa-print"></i> Print Report
+                </button>
+              </div>
+            </div>
+          </div>
+      
+          <!-- Excel/CSV Export Card -->
+          <div class="card report-option-card">
+            <div class="card-header">
+              <h3><i class="fas fa-file-excel" style="color: #22c55e;"></i> Excel Export</h3>
+            </div>
+            <div class="card-body">
+              <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">
+                Export your data to Excel/CSV format for analysis in spreadsheets or sharing with your accountant.
+              </p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button onclick="exportFullData()" class="btn btn-success" style="width:auto;padding:10px 24px;">
+                  <i class="fas fa-file-excel"></i> Export All Data
+                </button>
+                <button onclick="exportPassengerData()" class="btn btn-primary" style="width:auto;padding:10px 24px;">
+                  <i class="fas fa-users"></i> Export Passengers
+                </button>
+              </div>
+            </div>
+          </div>
+      
+        </div>
+      
+        <!-- Quick Stats Summary for Report -->
+        <div class="report-summary-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chart-simple" style="color: var(--color-purple);"></i> Quick Summary</h3>
+            </div>
+            <div class="card-body">
+              <div class="report-summary-stats">
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Total Income</span>
+                  <span class="report-summary-value" id="reportSummaryIncome">R0</span>
+                </div>
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Total Expenses</span>
+                  <span class="report-summary-value" id="reportSummaryExpenses">R0</span>
+                </div>
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Net Profit</span>
+                  <span class="report-summary-value" id="reportSummaryProfit">R0</span>
+                </div>
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Passengers</span>
+                  <span class="report-summary-value" id="reportSummaryPassengers">0</span>
+                </div>
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Collection Rate</span>
+                  <span class="report-summary-value" id="reportSummaryCollection">0%</span>
+                </div>
+                <div class="report-summary-item">
+                  <span class="report-summary-label">Avg Daily Income</span>
+                  <span class="report-summary-value" id="reportSummaryDaily">R0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      </section>
+
+      <!-- ========================================================== -->
+      <!-- TAB 6: SETTINGS                                            -->
+      <!-- ========================================================== -->
+      <section id="settings" class="tab">
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <h2><i class="fas fa-gear"></i> Settings</h2>
+        </div>
+
+        <!-- Settings Grid -->
+        <div class="settings-grid">
+
+          <!-- Monthly Fee Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-dollar-sign"></i> Monthly Fee</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Set monthly transport fee per passenger</label>
+                <div class="input-group">
+                  <span class="input-prefix">R</span>
+                  <input id="monthlyFee" type="number" placeholder="1800" class="form-control" />
+                </div>
+              </div>
+              <button onclick="saveMonthlyFee()" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Fee
+              </button>
+            </div>
+          </div>
+
+          <!-- Smart Finance Settings -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-cog"></i> Smart Finance Settings</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Monthly Income Target (R)</label>
+                <input id="settingsMonthlyTarget" type="number" placeholder="15000" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Monthly Expense Budget (R)</label>
+                <input id="settingsBudget" type="number" placeholder="8000" class="form-control" />
+              </div>
+              <button onclick="saveFinanceSettings()" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Finance Settings
+              </button>
+            </div>
+          </div>
+
+          <!-- Data Management Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-database"></i> Data Management</h3>
+            </div>
+            <div class="card-body">
+              <button onclick="exportBackup()" class="btn btn-success" style="margin-bottom:10px;">
+                <i class="fas fa-download"></i> Export Backup
+              </button>
+
+              <div class="form-group">
+                <label>Import Backup</label>
+                <input type="file" id="backupFile" accept=".json" class="form-control" />
+              </div>
+              <button onclick="importBackup()" class="btn btn-info">
+                <i class="fas fa-upload"></i> Import Backup
+              </button>
+
+              <hr />
+
+              <button onclick="clearDemoData()" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Clear Demo Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Cloud Sync -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-cloud" style="color: var(--color-cyan);"></i> Cloud Sync</h3>
+              <span class="badge" id="syncStatus">Offline</span>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+                <button onclick="generateSyncCode()" class="btn btn-info" style="width:auto;padding:10px;">
+                  <i class="fas fa-qrcode"></i> Generate Sync Code
+                </button>
+                <button onclick="importSyncData()" class="btn btn-primary" style="width:auto;padding:10px;">
+                  <i class="fas fa-arrow-down"></i> Import from Code
+                </button>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="syncToCloud()" class="btn btn-success" style="width:auto;padding:8px 16px;">
+                  <i class="fas fa-cloud-upload-alt"></i> Sync Now
+                </button>
+                <button onclick="exportBackup()" class="btn btn-warning" style="width:auto;padding:8px 16px;">
+                  <i class="fas fa-download"></i> Export Backup
+                </button>
+              </div>
+              <div id="syncStatusDisplay" style="margin-top:12px;padding:12px;background:var(--bg-primary);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);">
+                <span>📡 Last Sync: </span>
+                <span id="lastSyncTime">Never</span>
+                <span style="margin-left:16px;">📊 Data Size: </span>
+                <span id="dataSize">0 KB</span>
+              </div>
+              <div id="syncCodeDisplay" style="margin-top:12px;display:none;padding:16px;background:var(--bg-primary);border-radius:var(--radius-sm);border:2px dashed var(--color-cyan);">
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">📋 Your Sync Code (copy this to import on another device):</p>
+                <code id="syncCode" style="display:block;padding:12px;background:var(--bg-card);border-radius:6px;font-size:12px;word-break:break-all;color:var(--color-cyan);"></code>
+                <button onclick="copySyncCode()" class="btn btn-info" style="width:auto;padding:6px 16px;margin-top:8px;">
+                  <i class="fas fa-copy"></i> Copy Code
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminder Settings -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-sliders-h" style="color: var(--color-purple);"></i> Automation Settings</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Enable Auto-Reminders</label>
+                <select id="autoReminders" class="form-control" onchange="saveReminderSettings()">
+                  <option value="enabled">Enabled</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Reminder Days Before Due</label>
+                <select id="reminderDays" class="form-control" onchange="saveReminderSettings()">
+                  <option value="1">1 day before</option>
+                  <option value="2">2 days before</option>
+                  <option value="3">3 days before</option>
+                  <option value="5">5 days before</option>
+                  <option value="7">7 days before</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Auto-Reset Passengers on Month Change</label>
+                <select id="autoReset" class="form-control" onchange="saveReminderSettings()">
+                  <option value="enabled">Enabled (Recommended)</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+              </div>
+              <button onclick="saveReminderSettings()" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Automation Settings
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- PASSENGER DETAIL MODAL                                        -->
+      <!-- ============================================================ -->
+      <div class="modal" id="passengerModal">
+        <div class="modal-overlay" onclick="closePassengerModal()"></div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="modalPassengerName">Passenger Name</h2>
+            <button class="modal-close" onclick="closePassengerModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="modal-stats" id="modalStats">
+              <div class="modal-stat">
+                <span class="modal-stat-label">Monthly Fee</span>
+                <span class="modal-stat-value" id="modalMonthlyFee">R0</span>
+              </div>
+              <div class="modal-stat">
+                <span class="modal-stat-label">Paid This Month</span>
+                <span class="modal-stat-value" id="modalPaid">R0</span>
+              </div>
+              <div class="modal-stat">
+                <span class="modal-stat-label">Outstanding</span>
+                <span class="modal-stat-value" id="modalOutstanding">R0</span>
+              </div>
+              <div class="modal-stat">
+                <span class="modal-stat-label">Status</span>
+                <span class="modal-stat-value" id="modalStatus">Waiting</span>
+              </div>
+            </div>
+            
+            <div style="margin-top:20px;">
+              <h4 style="color:var(--text-secondary);font-weight:500;margin-bottom:12px;">
+                <i class="fas fa-clock-rotate-left"></i> Payment History
+              </h4>
+              <ul class="modal-history-list" id="modalHistoryList">
+                <li style="color:var(--text-muted);text-align:center;padding:20px;">No payments recorded</li>
+              </ul>
+            </div>
+            
+            <div style="margin-top:16px;">
+              <button onclick="markPassengerPaid()" class="btn btn-success" style="width:auto;padding:8px 24px;">
+                <i class="fas fa-check"></i> Mark as Paid
+              </button>
+              <button onclick="closePassengerModal()" class="btn btn-secondary" style="width:auto;padding:8px 24px;margin-left:8px;background:var(--bg-primary);color:var(--text-secondary);">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(function(registration) {
+          console.log('✅ Service Worker registered successfully!');
+        })
+        .catch(function(error) {
+          console.log('❌ Service Worker registration failed:', error);
+        });
+    }
+  </script>
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                    -->
+  <!-- ============================================================ -->
+  <script src="script.js"></script>
+
+</body>
+</html>
