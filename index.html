@@ -3,7 +3,7 @@
 <head>
   <!-- ===== META TAGS ===== -->
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Route Ledger Pro</title>
 
   <!-- ===== EXTERNAL RESOURCES ===== -->
@@ -21,41 +21,53 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- PWA Meta Tags -->
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Route Ledger">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#10b981">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+  <link rel="shortcut icon" href="icons/icon-96.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Route Ledger">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#10b981">
 
-<!-- PWA Icons (for older browsers) -->
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
-<link rel="shortcut icon" href="icons/icon-96.png">
+  <!-- PWA Icons (for older browsers) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+  <link rel="shortcut icon" href="icons/icon-96.png">
+
+  <!-- ===== DEBUG: Mobile data check ===== -->
+  <script>
+    (function() {
+      const hasData = localStorage.getItem('income') !== null || 
+                      localStorage.getItem('passengers') !== null;
+      
+      console.log('📱 App loading...');
+      console.log('📍 URL:', window.location.href);
+      console.log('💾 Data in localStorage:', hasData ? '✅ Found' : '❌ None');
+      
+      window.__hasLocalData = hasData;
+    })();
+  </script>
 
 </head>
 <body>
 
-  <div class="app">
+  <!-- ===== HAMBURGER MENU BUTTON (Mobile) ===== -->
+  <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle Menu">
+    <i class="fas fa-bars"></i>
+  </button>
 
-    <!-- Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(function(registration) {
-            console.log('✅ Service Worker registered successfully!');
-          })
-          .catch(function(error) {
-            console.log('❌ Service Worker registration failed:', error);
-          });
-      }
-    </script>
+  <!-- ===== SIDEBAR OVERLAY (Mobile) ===== -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <div class="app">
 
     <!-- ============================================================ -->
     <!-- SIDEBAR NAVIGATION                                            -->
     <!-- ============================================================ -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="mainSidebar">
 
       <!-- Brand / Logo -->
       <div class="sidebar-brand">
@@ -70,22 +82,22 @@
 
       <!-- Navigation Menu -->
       <div class="nav-menu">
-        <button class="nav-item active" data-tab="dashboard" onclick="showTab('dashboard')">
+        <button class="nav-item active" data-tab="dashboard" onclick="showTab('dashboard'); closeSidebar();">
           <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
         </button>
-        <button class="nav-item" data-tab="money" onclick="showTab('money')">
+        <button class="nav-item" data-tab="money" onclick="showTab('money'); closeSidebar();">
           <i class="fas fa-wallet"></i> <span>Money</span>
         </button>
-        <button class="nav-item" data-tab="history" onclick="showTab('history')">
+        <button class="nav-item" data-tab="history" onclick="showTab('history'); closeSidebar();">
           <i class="fas fa-clock-rotate-left"></i> <span>History</span>
         </button>
-        <button class="nav-item" data-tab="passengers" onclick="showTab('passengers')">
+        <button class="nav-item" data-tab="passengers" onclick="showTab('passengers'); closeSidebar();">
           <i class="fas fa-users"></i> <span>Passengers</span>
         </button>
-        <button class="nav-item" data-tab="reports" onclick="showTab('reports')">
+        <button class="nav-item" data-tab="reports" onclick="showTab('reports'); closeSidebar();">
           <i class="fas fa-file-invoice"></i> <span>Reports</span>
         </button>
-        <button class="nav-item" data-tab="settings" onclick="showTab('settings')">
+        <button class="nav-item" data-tab="settings" onclick="showTab('settings'); closeSidebar();">
           <i class="fas fa-gear"></i> <span>Settings</span>
         </button>
       </div>
@@ -101,7 +113,7 @@
             <i class="fas fa-download"></i>
           </button>
         </div>
-</div>
+      </div>
 
     </nav>
 
@@ -1038,10 +1050,12 @@
 
   </div>
 
-  <!-- Service Worker Registration -->
+  
+
+  <!-- ===== SINGLE SERVICE WORKER REGISTRATION ===== -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('service-worker.js')
         .then(function(registration) {
           console.log('✅ Service Worker registered successfully!');
         })
@@ -1051,10 +1065,28 @@
     }
   </script>
 
+  <!-- ===== NO DATA ALERT ===== -->
+  <script>
+    (function() {
+      if (window.__hasLocalData === false) {
+        setTimeout(function() {
+          if (typeof showToast === 'function') {
+            showToast('📋 No data found - Import or sync from Settings', 'warning');
+          }
+          if (!localStorage.getItem('dismissedNoDataAlert')) {
+            alert('📋 Welcome to Route Ledger!\n\nNo data was found on this device.\n\nGo to the Settings tab to:\n• Import a backup file\n• Use Cloud Sync to transfer data from another device\n\n(This message will only show once)');
+            localStorage.setItem('dismissedNoDataAlert', 'true');
+          }
+        }, 1500);
+      }
+    })();
+  </script>
+
   <!-- ============================================================ -->
   <!-- JAVASCRIPT                                                    -->
   <!-- ============================================================ -->
-  <script src="script.js"></script>
+  
+  <script type="module" src="script.js"></script>
 
 </body>
 </html>
