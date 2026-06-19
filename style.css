@@ -56,52 +56,13 @@
   --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
 
-/* Apply the theme variables to body */
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
-/* Update all other elements to use CSS variables */
-/* (They already use them if you defined them correctly) */
-
-:root {
-  /* ---- Colors ---- */
-  --bg-primary: #0a0e17;
-  --bg-secondary: #111827;
-  --bg-card: #1a2332;
-  --bg-card-hover: #1f2a3f;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: #1e293b;
-
-  /* ---- Accent Colors ---- */
-  --color-green: #10b981;
-  --color-green-dark: #059669;
-  --color-red: #ef4444;
-  --color-red-dark: #dc2626;
-  --color-blue: #3b82f6;
-  --color-blue-dark: #2563eb;
-  --color-yellow: #f59e0b;
-  --color-purple: #8b5cf6;
-  --color-cyan: #06b6d4;
-
-  /* ---- Effects ---- */
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.6);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ---- Scrollbar ---- */
@@ -129,7 +90,7 @@ body {
 }
 
 /* ================================================================
-   3. SIDEBAR
+   3. SIDEBAR - DESKTOP FIRST
    ================================================================ */
 
 .sidebar {
@@ -175,7 +136,7 @@ body {
   letter-spacing: -0.5px;
   background: linear-gradient(135deg, #f1f5f9, #94a3b8);
   -webkit-background-clip: text;
-   background-clip: text;  /* Add this line right after */
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -268,7 +229,57 @@ body {
 }
 
 /* ================================================================
-   4. MAIN CONTENT
+   4. HAMBURGER MENU - MOBILE ONLY
+   ================================================================ */
+
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10001;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 20px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.hamburger-btn:hover {
+  background: var(--bg-card-hover);
+}
+
+.hamburger-btn:active {
+  transform: scale(0.95);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ================================================================
+   5. MAIN CONTENT
    ================================================================ */
 
 .main-content {
@@ -280,7 +291,7 @@ body {
 }
 
 /* ================================================================
-   5. PAGE HEADER
+   6. PAGE HEADER
    ================================================================ */
 
 .page-header {
@@ -329,7 +340,7 @@ body {
 }
 
 /* ================================================================
-   6. TABS
+   7. TABS
    ================================================================ */
 
 .tab {
@@ -353,10 +364,9 @@ body {
 }
 
 /* ================================================================
-   7. STATISTICS CARDS
+   8. STATISTICS CARDS
    ================================================================ */
 
-/* ---- Primary Stats Grid ---- */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -364,7 +374,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* ---- Secondary Stats Grid ---- */
 .stats-grid-secondary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -372,7 +381,6 @@ body {
   margin-bottom: 24px;
 }
 
-/* ---- Stat Card ---- */
 .stat-card {
   background: var(--bg-card);
   border-radius: var(--radius);
@@ -408,7 +416,6 @@ body {
   font-size: 16px;
 }
 
-/* ---- Stat Icon Colors ---- */
 .stat-income .stat-icon {
   background: rgba(16, 185, 129, 0.15);
   color: var(--color-green);
@@ -438,7 +445,6 @@ body {
   color: var(--color-cyan);
 }
 
-/* ---- Stat Info ---- */
 .stat-info {
   flex: 1;
   min-width: 0;
@@ -459,7 +465,6 @@ body {
   margin-top: 2px;
 }
 
-/* ---- Stat Change Indicators ---- */
 .stat-change {
   font-size: 12px;
   font-weight: 600;
@@ -503,12 +508,6 @@ body {
   transform: translateX(4px);
 }
 
-/* Enhanced stat change with tooltip */
-.stat-change {
-  position: relative;
-  cursor: help;
-}
-
 .stat-change .change-label {
   font-size: 9px;
   opacity: 0.7;
@@ -516,12 +515,14 @@ body {
   letter-spacing: 0.3px;
 }
 
-/* Hover effect for stat cards showing change */
 .stat-card:hover .stat-change .change-label {
   opacity: 1;
 }
 
-/* ===== CHARTS ===== */
+/* ================================================================
+   9. CHARTS
+   ================================================================ */
+
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -538,15 +539,8 @@ body {
   width: 100% !important;
 }
 
-/* Responsive charts */
-@media (max-width: 768px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ================================================================
-   8. QUICK ACTIONS
+   10. QUICK ACTIONS
    ================================================================ */
 
 .quick-actions {
@@ -583,7 +577,7 @@ body {
 }
 
 /* ================================================================
-   9. CARDS
+   11. CARDS
    ================================================================ */
 
 .card {
@@ -619,7 +613,7 @@ body {
 }
 
 /* ================================================================
-   10. MONEY TAB
+   12. MONEY TAB
    ================================================================ */
 
 .money-grid {
@@ -636,7 +630,7 @@ body {
 }
 
 /* ================================================================
-   11. FORMS
+   13. FORMS
    ================================================================ */
 
 .form-group {
@@ -673,15 +667,13 @@ body {
   color: var(--text-muted);
 }
 
-/* ---- Select Dropdown Arrow ---- */
-.form-control select {
+select.form-control {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
 }
 
-/* ---- Input Group ---- */
 .input-group {
   display: flex;
   align-items: center;
@@ -703,7 +695,7 @@ body {
 }
 
 /* ================================================================
-   12. BUTTONS
+   14. BUTTONS
    ================================================================ */
 
 .btn {
@@ -768,7 +760,7 @@ body {
 }
 
 /* ================================================================
-   13. HISTORY TAB
+   15. HISTORY TAB
    ================================================================ */
 
 .history-grid {
@@ -816,10 +808,9 @@ body {
 }
 
 /* ================================================================
-   14. PASSENGERS TAB
+   16. PASSENGERS TAB
    ================================================================ */
 
-/* ---- Passenger Actions ---- */
 .passenger-actions {
   display: flex;
   gap: 12px;
@@ -832,7 +823,6 @@ body {
   padding: 10px 18px;
 }
 
-/* ---- Passenger Statistics ---- */
 .passenger-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -863,7 +853,6 @@ body {
   margin-top: 2px;
 }
 
-/* ---- Passenger Grid ---- */
 .passenger-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -920,85 +909,64 @@ body {
   background: var(--color-red-dark);
 }
 
+.passenger-checkbox {
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: var(--color-green);
+  width: 16px;
+  height: 16px;
+}
+
 /* ================================================================
-   15. REPORTS TAB
+   17. REPORTS TAB
    ================================================================ */
 
-.report-grid {
+.report-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.report-option-card .card-body p {
+  line-height: 1.5;
+}
+
+.report-option-card .btn {
+  width: auto;
+}
+
+.report-summary-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.report-card {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: var(--transition);
+.report-summary-item {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
 }
 
-.report-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(16, 185, 129, 0.2);
+.report-summary-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.report-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.report-summary-value {
+  display: block;
   font-size: 18px;
-  flex-shrink: 0;
-}
-
-/* ---- Report Icon Colors ---- */
-.report-passenger .report-icon {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--color-green);
-}
-.report-delivery .report-icon {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--color-blue);
-}
-.report-other .report-icon {
-  background: rgba(139, 92, 246, 0.15);
-  color: var(--color-purple);
-}
-.report-total .report-icon {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--color-yellow);
-}
-.report-expense-total .report-icon {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--color-red);
-}
-.report-profit .report-icon {
-  background: rgba(6, 182, 212, 0.15);
-  color: var(--color-cyan);
-}
-
-.report-label {
-  display: block;
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.report-value {
-  display: block;
-  font-size: 20px;
   font-weight: 700;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 /* ================================================================
-   16. SETTINGS TAB
+   18. SETTINGS TAB
    ================================================================ */
 
 .settings-grid {
@@ -1019,7 +987,7 @@ body {
 }
 
 /* ================================================================
-   17. TOAST NOTIFICATIONS
+   19. TOAST NOTIFICATIONS
    ================================================================ */
 
 .toast-container {
@@ -1033,12 +1001,12 @@ body {
 }
 
 .toast {
-  background: #1a2332;
-  color: #f1f5f9;
+  background: var(--bg-card);
+  color: var(--text-primary);
   padding: 14px 24px;
   border-radius: 10px;
   border-left: 4px solid var(--color-blue);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-hover);
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -1048,7 +1016,26 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .toast {
+  background: #1a2332;
+  color: #f1f5f9;
   border: 1px solid #1e293b;
+}
+
+.toast.success {
+  border-left-color: var(--color-green);
+}
+.toast.error {
+  border-left-color: var(--color-red);
+}
+.toast.warning {
+  border-left-color: var(--color-yellow);
+}
+.toast.info {
+  border-left-color: var(--color-blue);
 }
 
 @keyframes slideInToast {
@@ -1063,97 +1050,7 @@ body {
 }
 
 /* ================================================================
-   18. RESPONSIVE DESIGN
-   ================================================================ */
-
-/* ---- Tablets & Small Laptops ---- */
-@media (max-width: 1024px) {
-  .stats-grid-secondary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .report-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ---- Mobile Devices ---- */
-@media (max-width: 768px) {
-  /* Hide sidebar on mobile */
-  .sidebar {
-    display: none;
-  }
-
-  .main-content {
-    padding: 20px;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-grid-secondary {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .money-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .history-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .report-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .passenger-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .passenger-actions {
-    flex-direction: column;
-  }
-
-  .passenger-actions .btn {
-    width: 100%;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .stat-card {
-    padding: 16px;
-  }
-}
-
-/* ---- Small Phones ---- */
-@media (max-width: 480px) {
-  .stats-grid-secondary {
-    grid-template-columns: 1fr;
-  }
-
-  .passenger-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .passenger-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ================================================================
-   19. SMART FINANCE
+   20. SMART FINANCE
    ================================================================ */
 
 .smart-finance-grid {
@@ -1179,7 +1076,6 @@ body {
   color: var(--text-primary);
 }
 
-/* ---- Progress Bars ---- */
 .progress-bar-container {
   width: 100%;
   height: 8px;
@@ -1203,7 +1099,6 @@ body {
   background: linear-gradient(90deg, var(--color-red), #dc2626);
 }
 
-/* ---- Finance Stats ---- */
 .finance-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1233,25 +1128,8 @@ body {
   margin-top: 4px;
 }
 
-/* ---- Responsive Finance Grid ---- */
-@media (max-width: 1024px) {
-  .smart-finance-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .smart-finance-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .finance-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 /* ================================================================
-   20. PASSENGER MODAL
+   21. PASSENGER MODAL
    ================================================================ */
 
 .modal {
@@ -1338,7 +1216,6 @@ body {
   padding: 24px;
 }
 
-/* ---- Modal Stats ---- */
 .modal-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1368,7 +1245,6 @@ body {
   margin-top: 4px;
 }
 
-/* ---- Modal History List ---- */
 .modal-history-list {
   list-style: none;
   padding: 0;
@@ -1395,7 +1271,6 @@ body {
   color: var(--color-green);
 }
 
-/* ---- Modal Buttons ---- */
 .btn-secondary {
   background: var(--bg-primary);
   color: var(--text-secondary);
@@ -1408,7 +1283,7 @@ body {
 }
 
 /* ================================================================
-   21. PASSENGER RANKING
+   22. PASSENGER RANKING
    ================================================================ */
 
 .ranking-list {
@@ -1467,75 +1342,10 @@ body {
   color: var(--color-green);
 }
 
-/* ---- Passenger Checkbox ---- */
-.passenger-checkbox {
-  margin-right: 10px;
-  cursor: pointer;
-  accent-color: var(--color-green);
-  width: 16px;
-  height: 16px;
-}
-
 /* ================================================================
-   22. SCROLLBAR STYLES
+   23. ADVANCED ANALYTICS
    ================================================================ */
 
-.modal-content::-webkit-scrollbar,
-.modal-history-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.modal-content::-webkit-scrollbar-track,
-.modal-history-list::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-.modal-content::-webkit-scrollbar-thumb,
-.modal-history-list::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
-
-/* ================================================================
-   23. RESPONSIVE MODAL
-   ================================================================ */
-
-@media (max-width: 480px) {
-  .modal-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .modal-content {
-    width: 95%;
-    max-height: 90vh;
-  }
-  
-  .modal-header h2 {
-    font-size: 17px;
-  }
-}
-
-/* Add to existing modal styles */
-.modal.active .modal-content {
-  animation: modalSlideIn 0.3s ease;
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ================================================================
-   24. ADVANCED ANALYTICS
-   ================================================================ */
-
-/* ---- Comparison Grid ---- */
 .comparison-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1590,7 +1400,6 @@ body {
   color: var(--color-red);
 }
 
-/* ---- YTD Stats ---- */
 .ytd-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1620,7 +1429,6 @@ body {
   margin-top: 4px;
 }
 
-/* ---- Analytics Grid ---- */
 .analytics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1628,7 +1436,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* ---- Expense Legend ---- */
 .expense-legend {
   list-style: none;
   padding: 0;
@@ -1660,7 +1467,6 @@ body {
   color: var(--text-primary);
 }
 
-/* ---- Best/Worst Grid ---- */
 .best-worst-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1683,7 +1489,6 @@ body {
   color: var(--text-muted);
 }
 
-/* ---- Trends Table ---- */
 .trends-table {
   width: 100%;
   border-collapse: collapse;
@@ -1716,195 +1521,14 @@ body {
 .trends-table .positive {
   color: var(--color-green);
 }
-
 .trends-table .negative {
   color: var(--color-red);
 }
 
-/* ---- Responsive Analytics ---- */
-@media (max-width: 1024px) {
-  .comparison-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .analytics-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .ytd-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .comparison-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .ytd-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .best-worst-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .expense-legend {
-    grid-template-columns: 1fr;
-  }
-  
-  .trends-table {
-    font-size: 12px;
-  }
-  
-  .trends-table th,
-  .trends-table td {
-    padding: 8px 10px;
-  }
-}
-
 /* ================================================================
-   27. REPORTS & EXPORT
+   24. REMINDERS & AUTOMATION
    ================================================================ */
 
-/* ---- Report Options Grid ---- */
-.report-options-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.report-option-card .card-body p {
-  line-height: 1.5;
-}
-
-.report-option-card .btn {
-  width: auto;
-}
-
-/* ---- Report Summary ---- */
-.report-summary-grid {
-  margin-top: 0;
-}
-
-.report-summary-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.report-summary-item {
-  text-align: center;
-  padding: 12px;
-  background: var(--bg-primary);
-  border-radius: var(--radius-sm);
-}
-
-.report-summary-label {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.report-summary-value {
-  display: block;
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 4px;
-}
-
-/* ---- Print Styles ---- */
-@media print {
-  body {
-    background: white !important;
-    color: black !important;
-  }
-  
-  .sidebar,
-  .nav-menu,
-  .sidebar-footer,
-  .quick-actions,
-  .header-actions {
-    display: none !important;
-  }
-  
-  .main-content {
-    padding: 20px !important;
-    max-width: 100% !important;
-  }
-  
-  .card {
-    border: 1px solid #ddd !important;
-    box-shadow: none !important;
-    page-break-inside: avoid;
-  }
-  
-  .stat-card {
-    border: 1px solid #ddd !important;
-    box-shadow: none !important;
-  }
-  
-  .tab {
-    display: block !important;
-  }
-  
-  .tab:not(.active-tab) {
-    display: none !important;
-  }
-  
-  #dashboard {
-    display: block !important;
-  }
-  
-  .chart-card canvas {
-    max-height: 150px !important;
-  }
-  
-  .btn,
-  .quick-btn,
-  .nav-item {
-    display: none !important;
-  }
-  
-  .progress-bar-container {
-    background: #f0f0f0 !important;
-  }
-  
-  .progress-bar {
-    background: #10b981 !important;
-  }
-}
-
-/* ---- Responsive Reports ---- */
-@media (max-width: 768px) {
-  .report-options-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .report-summary-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .report-option-card .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .report-summary-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* ================================================================
-   28. REMINDERS & AUTOMATION
-   ================================================================ */
-
-/* ---- Overdue List ---- */
 #overdueList {
   max-height: 150px;
   overflow-y: auto;
@@ -1941,63 +1565,267 @@ body {
   color: white !important;
 }
 
-/* ---- Reminder Toast ---- */
-.reminder-toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10000;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  max-width: 350px;
-  box-shadow: var(--shadow-hover);
-  animation: slideInReminder 0.3s ease;
-}
+/* ================================================================
+   25. MOBILE RESPONSIVE (768px and below)
+   ================================================================ */
 
-.reminder-toast .reminder-title {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.reminder-toast .reminder-message {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-@keyframes slideInReminder {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
+@media (max-width: 768px) {
+  /* Show hamburger button */
+  .hamburger-btn {
+    display: flex;
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  
+  /* Sidebar becomes slide-in drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 9999;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--border-color);
+    border-radius: 0;
+    box-shadow: var(--shadow-hover);
+    padding-top: 20px;
+    display: flex !important;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  /* Main content padding for mobile */
+  .main-content {
+    padding: 70px 16px 20px 16px;
+  }
+  
+  /* Grid changes */
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid-secondary {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .money-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .smart-finance-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .report-options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .report-summary-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .passenger-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .passenger-actions {
+    flex-direction: column;
+  }
+  
+  .passenger-actions .btn {
+    width: 100%;
+  }
+  
+  .passenger-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .finance-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .comparison-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .ytd-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .best-worst-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .expense-legend {
+    grid-template-columns: 1fr;
+  }
+  
+  .trends-table {
+    font-size: 12px;
+  }
+  
+  .trends-table th,
+  .trends-table td {
+    padding: 8px 10px;
+  }
+  
+  /* Modal for mobile */
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .modal-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .modal-header h2 {
+    font-size: 17px;
+  }
+  
+  /* Toast on mobile */
+  .toast-container {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+  }
+  
+  .toast {
+    font-size: 13px;
+    padding: 12px 16px;
+    min-width: auto;
+    max-width: 100%;
   }
 }
 
 /* ================================================================
-   29. PWA INSTALL BANNER
+   26. SMALL PHONES (480px and below)
    ================================================================ */
 
-#installBanner {
-  display: none;
-  animation: slideDown 0.3s ease;
-}
-
-#installBanner.show {
-  display: flex !important;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
+@media (max-width: 480px) {
+  .stats-grid-secondary {
+    grid-template-columns: 1fr 1fr;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+  
+  .passenger-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .report-summary-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .sidebar {
+    width: 260px;
+    left: -260px;
+  }
+  
+  .main-content {
+    padding: 65px 12px 16px 12px;
+  }
+}
+
+/* ================================================================
+   27. PRINT STYLES
+   ================================================================ */
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .sidebar,
+  .hamburger-btn,
+  .sidebar-overlay,
+  .nav-menu,
+  .sidebar-footer,
+  .quick-actions,
+  .header-actions,
+  .btn,
+  .quick-btn {
+    display: none !important;
+  }
+  
+  .main-content {
+    padding: 20px !important;
+    max-width: 100% !important;
+  }
+  
+  .card {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  
+  .stat-card {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  .tab {
+    display: block !important;
+  }
+  
+  .tab:not(.active-tab) {
+    display: none !important;
+  }
+  
+  #dashboard {
+    display: block !important;
+  }
+  
+  .chart-card canvas {
+    max-height: 150px !important;
+  }
+  
+  .progress-bar-container {
+    background: #f0f0f0 !important;
+  }
+  
+  .progress-bar {
+    background: #10b981 !important;
   }
 }
