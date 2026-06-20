@@ -47,6 +47,8 @@ function initSync() {
     });
 }
 
+initSync();
+
 function loadDataFromCloud() {
   if (!currentUserId) return;
   
@@ -815,6 +817,8 @@ function importBackup() {
 
 function initApp() {
   console.log("🚀 Route Ledger Pro initializing...");
+
+  initSync();
   
   checkMonthReset();
   
