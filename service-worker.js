@@ -4,11 +4,11 @@
 
 const CACHE_NAME = 'route-ledger-v1.0.0';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
+ '/Route-Ledger-Pro/',
+  '/Route-Ledger-Pro/index.html',
+  '/Route-Ledger-Pro/style.css',
+  '/Route-Ledger-Pro/script.js',
+  '/Route-Ledger-Pro/manifest.json',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'
 ];
