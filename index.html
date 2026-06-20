@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="style.css">
 
   <!-- PWA Meta Tags -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/Route-Ledger-Pro/manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
@@ -1055,7 +1055,7 @@
   <!-- ===== SINGLE SERVICE WORKER REGISTRATION ===== -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
+      navigator.serviceWorker.register('/Route-Ledger-Pro/service-worker.js')
         .then(function(registration) {
           console.log('✅ Service Worker registered successfully!');
         })
