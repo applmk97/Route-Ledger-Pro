@@ -3267,6 +3267,13 @@ window.toggleIncomeFields = toggleIncomeFields;
 window.toggleExpenseField = toggleExpenseField;
 
 // ================================================================
+// START FIREBASE SYNC
+// ================================================================
+
+console.log("🚀 MANUALLY STARTING FIREBASE SYNC...");
+initSync();
+
+// ================================================================
 // START THE APP
 // ================================================================
 
