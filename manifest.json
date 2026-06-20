@@ -2,7 +2,7 @@
   "name": "Route Ledger Pro",
   "short_name": "Route Ledger",
   "description": "Business Finance Tracker",
-  "start_url": "/index.html",
+  "start_url": "/Route-Ledger-Pro/index.html",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#10b981",
