@@ -41,13 +41,13 @@ function initSync() {
     })
     .catch((error) => {
       console.error("❌ Firebase error:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
       syncEnabled = false;
       updateSyncStatusUI(false);
       showToast("📡 Offline mode - Data saved locally", "warning");
     });
 }
-
-initSync();
 
 function loadDataFromCloud() {
   if (!currentUserId) return;
@@ -817,8 +817,6 @@ function importBackup() {
 
 function initApp() {
   console.log("🚀 Route Ledger Pro initializing...");
-
-  initSync();
   
   checkMonthReset();
   
@@ -3265,6 +3263,8 @@ window.addIncome = addIncome;
 window.addExpense = addExpense;
 window.toggleIncomeFields = toggleIncomeFields;
 window.toggleExpenseField = toggleExpenseField;
+window.forceSync = forceSync;
+window.uploadToCloud = uploadToCloud;
 
 // ================================================================
 // START FIREBASE SYNC
