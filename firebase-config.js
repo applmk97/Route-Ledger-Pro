@@ -1,16 +1,12 @@
 /* ================================================================
-   FIREBASE CONFIG - Route Ledger Pro
+   FIREBASE CONFIG - Route Ledger Pro (Shared Sync)
    ================================================================ */
 
 // Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// ================================================================
-// YOUR FIREBASE CONFIG - REPLACE WITH YOUR OWN!
-// ================================================================
-
+// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAhyzHtfO8WEzFvWvyuVzRRmkEcPhbGQng",
   authDomain: "route-ledger-51260.firebaseapp.com",
@@ -21,15 +17,21 @@ const firebaseConfig = {
   appId: "1:687773386374:web:fdd4b7f9cebf5dbc3c7307"
 };
 
-// ================================================================
-// INITIALIZE FIREBASE
-// ================================================================
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth(app);
+console.log("🔥 Firebase initialized!");
 
-let currentUserId = null;
+// ================================================================
+// FIXED USER ID - ALL DEVICES SHARE THIS!
+// ================================================================
+
+// Change this to ANY unique string - this is your shared user ID
+// All devices using this same ID will share the same data!
+const FIXED_USER_ID = "route-ledger-master-2026";
+
+console.log("📌 Using fixed User ID:", FIXED_USER_ID);
+
+let currentUserId = FIXED_USER_ID;
 let isSyncing = false;
 let syncEnabled = true;
 
@@ -37,30 +39,17 @@ let syncEnabled = true;
 // SYNC FUNCTIONS
 // ================================================================
 
-/**
- * Initialize Firebase sync
- */
 function initSync() {
-  console.log("☁️ Initializing Firebase sync...");
+  console.log("☁️ Initializing Firebase sync with FIXED USER ID...");
+  console.log("📌 User ID:", currentUserId);
   
-  signInAnonymously(auth)
-    .then((userCredential) => {
-      currentUserId = userCredential.user.uid;
-      console.log("✅ Firebase connected! User ID:", currentUserId.substring(0, 8) + "...");
-      updateSyncStatusUI(true);
-      loadDataFromCloud();
-    })
-    .catch((error) => {
-      console.error("❌ Firebase error:", error);
-      syncEnabled = false;
-      updateSyncStatusUI(false);
-      showToast("📡 Offline mode - Data saved locally", "warning");
-    });
+  // Update UI
+  updateSyncStatusUI(true);
+  
+  // Load data from cloud
+  loadDataFromCloud();
 }
 
-/**
- * Load data from cloud
- */
 function loadDataFromCloud() {
   if (!currentUserId) return;
   
@@ -80,9 +69,6 @@ function loadDataFromCloud() {
   });
 }
 
-/**
- * Upload data to cloud
- */
 function uploadToCloud() {
   if (!currentUserId || !syncEnabled) return;
   
@@ -100,9 +86,6 @@ function uploadToCloud() {
     });
 }
 
-/**
- * Get current data from localStorage
- */
 function getCurrentData() {
   return {
     income: parseFloat(localStorage.getItem("income")) || 0,
@@ -123,25 +106,22 @@ function getCurrentData() {
   };
 }
 
-/**
- * Merge cloud data with local
- */
 function mergeCloudData(cloudData) {
   if (!cloudData) return;
   
-  // Check if cloud has newer data
   const cloudTime = cloudData.lastUpdated ? new Date(cloudData.lastUpdated) : new Date(0);
   const localTime = localStorage.getItem("lastLocalUpdate") ? new Date(localStorage.getItem("lastLocalUpdate")) : new Date(0);
   
-  if (localTime > cloudTime && localStorage.getItem("income") !== null) {
+  // Check which data is newer
+  if (localTime > cloudTime && localStorage.getItem("income") !== null && parseFloat(localStorage.getItem("income")) > 0) {
     console.log("📱 Local data is newer, uploading...");
     uploadToCloud();
     return;
   }
   
-  // Merge all data
   console.log("☁️ Merging cloud data...");
   
+  // Merge all data
   if (cloudData.income !== undefined) localStorage.setItem("income", cloudData.income);
   if (cloudData.expenses !== undefined) localStorage.setItem("expenses", cloudData.expenses);
   if (cloudData.monthlyFee !== undefined) localStorage.setItem("monthlyFee", cloudData.monthlyFee);
@@ -167,9 +147,6 @@ function mergeCloudData(cloudData) {
   updateSyncStatusUI(true);
 }
 
-/**
- * Auto-sync when data changes
- */
 function autoSync() {
   if (isSyncing || !syncEnabled || !currentUserId) return;
   
@@ -183,9 +160,6 @@ function autoSync() {
   }, 2000);
 }
 
-/**
- * Update sync status UI
- */
 function updateSyncStatusUI(connected) {
   const statusEl = document.getElementById("syncStatus");
   const timeEl = document.getElementById("lastSyncTime");
@@ -207,9 +181,6 @@ function updateSyncStatusUI(connected) {
   }
 }
 
-/**
- * Force manual sync
- */
 function forceSync() {
   if (!currentUserId) {
     showToast("📡 Not connected to cloud", "warning");
@@ -218,8 +189,6 @@ function forceSync() {
   
   showToast("☁️ Syncing...", "info");
   uploadToCloud();
-  
-  // Also try to load from cloud
   loadDataFromCloud();
 }
 
